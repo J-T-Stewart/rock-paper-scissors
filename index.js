@@ -1,118 +1,152 @@
-const choices = ['rock', 'paper', 'scissors'];
+(function() {
 
-/**
- * Check to see if the users input is a valid rock paper scissors choice.
- * @param {String} input The users input to validate
- * @returns {Boolean} wether the input is valid or not
- */
-const validateUserInput = (input) => {
+    const game = {
 
-    return choices.includes(input.toLowerCase());
+        state: {
 
-};
+            score: {
 
-/**
- * Get a random choice from [rock, paper, scissors] for the computer player.
- * @returns {String} the computer's choice
- */
-const getComputerChoice = () => {
+                player: 0,
 
-    return choices[Math.floor(Math.random() * choices.length)];
+                computer: 0,
 
-};
-
-/**
- * Takes both the player and computer's choices and determines the result of the game
- * @param {String} playerChoice The player's selection
- * @param {String} computerChoice The computer's selection
- * @returns {String} the result of the game
- */
-const playRound = (playerChoice, computerChoice) => {
-
-    if (!choices.includes(playerChoice)) {
-        console.log("Please choose a valid option [Rock, Paper, Scissors]");
-        return 'error';
-    }
-
-    const gameState = {
-        rock: {
-            rock: {
-                winner: "None",
-                message: "It's a Tie!  You both chose Rock"
             },
-            paper: {
-                winner: "Computer",
-                message: "You Lose! Paper covers Rock"
-            },
-            scissors: {
-                winner: "Player",
-                message: "You Win! Rock crushes Scissors"
-            }
+
+            choices: ['rock', 'paper', 'scissors'],
+
         },
-        paper: {
-            rock: {
-                winner: "Player",
-                message: "You Win! Paper covers Rock"
+
+        functions: {
+
+            getComputerChoice: function() {
+
+                return game.state.choices[Math.floor(Math.random() * game.state.choices.length)];
+
             },
-            paper: {
-                winner: "None",
-                message: "It's a Tie!  You both chose Paper"
+
+            updateTimeline: function(message) {
+
+                console.log('====================================');
+                console.log("Update Timeline with: ", message);
+                console.log('====================================');
+
             },
-            scissors: {
-                winner: "Computer",
-                message: "You Lose! Scissors cuts Paper"
-            }
+
+            updateScore: function(winner) {
+
+                game.state.score[winner]++;
+
+                console.log('====================================');
+                console.log("Current Score: ", game.state.score);
+                console.log('====================================');
+
+            },
+
+            handleResult: function(result) {
+
+                if (result.winner === "tie") {
+
+                    const message = `This round was a Tie! Both players chose ${result.winningChoice}`;
+
+                    game.functions.updateTimeline(message);
+
+                } else {
+
+                    const message = `The winner was the ${result.winner}! ${result.winningChoice} beats ${result.losingChoice}`;
+
+                    game.functions.updateScore(result.winner);
+    
+                    game.functions.updateTimeline(message);
+
+                }
+
+            },
+
+            getResult: function(playerChoice, computerChoice) {
+
+                if (playerChoice === computerChoice) {
+
+                    return ({
+                        winner: 'tie',
+                        winningChoice: playerChoice,
+                        losingChoice: computerChoice
+                    });
+
+                }
+
+                const permutations = {
+                    rock: {
+                        paper: {
+                            winner: "computer",
+                            winningChoice: computerChoice,
+                            losingChoice: playerChoice
+                        },
+                        scissors: {
+                            winner: "player",
+                            winningChoice: playerChoice,
+                            losingChoice: computerChoice
+                        }
+                    },
+                    paper: {
+                        rock: {
+                            winner: "player",
+                            winningChoice: playerChoice,
+                            losingChoice: computerChoice
+                        },
+                        scissors: {
+                            winner: "computer",
+                            winningChoice: computerChoice,
+                            losingChoice: playerChoice
+                        }
+                    },
+                    scissors: {
+                        rock: {
+                            winner: "computer",
+                            winningChoice: computerChoice,
+                            losingChoice: playerChoice
+                        },
+                        paper: {
+                            winner: "player",
+                            winningChoice: playerChoice,
+                            losingChoice: computerChoice
+                        },
+                    }
+                };
+
+                return permutations[playerChoice][computerChoice];
+
+            },
+
+            playRound: function(playerChoice) {
+
+                const computerChoice = game.functions.getComputerChoice();
+
+                const result = game.functions.getResult(playerChoice, computerChoice);
+
+                game.functions.handleResult(result);
+
+            },
+
         },
-        scissors: {
-            rock: {
-                winner: "Computer",
-                message: "You Lose! Rock crushes Scissors"
-            },
-            paper: {
-                winner: "Player",
-                message: "You Win! Scissors cuts Paper"
-            },
-            scissors: {
-                winner: "None",
-                message: "It's a Tie!  You both chose Scissors"
-            }
-        }
+
+        setEvents: function() {
+
+            document.getElementById('select-rock').addEventListener('click', () => game.functions.playRound('rock'));
+
+            document.getElementById('select-paper').addEventListener('click', () => game.functions.playRound('paper'));
+
+            document.getElementById('select-scissors').addEventListener('click', () => game.functions.playRound('scissors'));
+
+        },
+
+        init: function() {
+
+            game.setEvents();
+
+        },
+
     };
 
-    return gameState[playerChoice.toLowerCase()][computerChoice];
+    game.init();
 
-};
-
-/**
- * Starts a best 3/5 game of rock paper scissors, waits for user input and then generates a random selection for the computer.
- */
-const playGame = () => {
-
-    let playerWins = 0;
-    let computerWins = 0;
-
-    while (playerWins < 3 && computerWins < 3) {
-
-        const playerChoice = prompt("Choose Rock, Paper or Scissors!");
-
-        if (!validateUserInput(playerChoice)) continue;
-
-        const roundResult = playRound(playerChoice, getComputerChoice());
-
-        console.log("Round Result: ", roundResult.message);
-
-        (roundResult.winner === 'Player') ? playerWins++ : computerWins++;
-
-        console.log(`The Current Score: Player: ${playerWins} to Computer: ${computerWins}`);
-
-    }
-
-    const winner = (playerWins === 3) ? 'Player' : 'Computer';
-
-    console.log('====================================');
-    console.log(`We have a winner: ${winner}`);
-    console.log('====================================');
-
-};
-
-playGame();
+})();
