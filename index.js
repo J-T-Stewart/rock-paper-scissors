@@ -26,9 +26,13 @@
 
             updateTimeline: function(message) {
 
-                console.log('====================================');
-                console.log("Update Timeline with: ", message);
-                console.log('====================================');
+                const timelineElement = document.getElementById('game-timeline');
+
+                const newEvent = document.createElement('li');
+
+                newEvent.innerHTML = message;
+
+                timelineElement.insertBefore(newEvent, timelineElement.firstChild);
 
             },
 
@@ -36,9 +40,9 @@
 
                 game.state.score[winner]++;
 
-                console.log('====================================');
-                console.log("Current Score: ", game.state.score);
-                console.log('====================================');
+                document.getElementById('player-score').innerHTML = game.state.score.player;
+
+                document.getElementById('computer-score').innerHTML = game.state.score.computer;
 
             },
 
